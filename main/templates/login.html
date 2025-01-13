@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="post" action="">
+	<table>
+		<tr>
+			<th>
+				{{ form.passwd.label }}
+			</th>
+			<th>
+			  	{{ form.passwd }}
+			</th>
+		</tr>
+	</table>
+	{% csrf_token %}
+	<button class="black-button">Unlock</button>
+</form>
+<p class="errormsg">{{ errormsg }}</p>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.urls import reverse
 import uuid
-from .forms import ShareForm
+from .forms import ShareForm, LoginForm
 from .models import UserFile
 
 def mainView(request):
@@ -17,12 +17,33 @@ def shareView(request):
                 file = UserFile()
                 file.accesspwd = form.cleaned_data["accesspwd1"]
                 file.deletionpwd = form.cleaned_data["deletionpwd1"]
-                file.name = uuid.uuid4()
+                file.id = uuid.uuid4()
                 file.file = form.cleaned_data["file"]
-                file.file.name = str(file.name)
+                file.file.name = str(file.id)
                 file.save()
-                link = request.build_absolute_uri("/" + str(file.name))
+                link = request.build_absolute_uri("/" + str(file.id))
                 return render(request, "success.html", {"link": link})
     else:
         form = ShareForm()
     return render(request, "share.html", {"form": form})
+
+def fileView(request, uid_str):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if not form.is_valid():
+            return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
+        uid = None
+        try:
+            uid = uuid.UUID(uid_str)
+        except ValueError:
+            pass
+        file = UserFile.objects.filter(id=uid)
+        if not file:
+            return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
+        file = file[0]
+        if file.accesspwd != form.cleaned_data["passwd"] and file.deletionpwd != form.cleaned_data["passwd"]:
+            return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
+        # TODO: show file
+    else:
+        form = LoginForm
+    return render(request, "login.html", {"form": form})

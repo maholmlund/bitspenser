@@ -1,7 +1,7 @@
 from django.db import models
 
 class UserFile(models.Model):
-    name = models.UUIDField
+    id = models.UUIDField(primary_key=True)
     file = models.FileField(upload_to="data")
     accesspwd = models.CharField(max_length=255)
     deletionpwd = models.CharField(max_length=255)
