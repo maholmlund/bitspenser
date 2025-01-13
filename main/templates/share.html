@@ -1,50 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form action="post">
+<form method="post" action="" enctype="multipart/form-data">
 	<table class="share-dialog">
-
 		<tr>
 			<th>
-				<label for="file">File</label>
+				{{ form.file.label }}
 			</th>
 			<th>
-				<input type="file" name="file" id="">
+				{{ form.file }}
 			</th>
 		</tr>
 		<tr>
 			<th>
-				<label for="">Protection password</label>
+				{{ form.accesspwd1.label }}
 			</th>
 			<th>
-				<input type="password">
-			</th>
-		</tr>
-		<tr>
-			<th>
-				<label for="">Retype password</label>
-			</th>
-			<th>
-				<input type="password">
+				{{ form.accesspwd1 }}
 			</th>
 		</tr>
 		<tr>
 			<th>
-				<label for="">Deletion password</label>
+				{{ form.accesspwd2.label }}
 			</th>
 			<th>
-				<input type="password">
+				{{ form.accesspwd2 }}
 			</th>
 		</tr>
 		<tr>
 			<th>
-				<label for="">Retype password</label>
+				{{ form.deletionpwd1.label }}
 			</th>
 			<th>
-				<input type="password">
+				{{ form.deletionpwd1 }}
+			</th>
+		</tr>
+		<tr>
+			<th>
+				{{ form.deletionpwd2.label }}
+			</th>
+			<th>
+				{{ form.deletionpwd2 }}
 			</th>
 		</tr>
 	</table>
+	{% csrf_token %}
 	<button class="black-button">Submit</button>
+	{% if errormsg %}
+	<p class="errormsg"> {{errormsg }}</p>
+	{% endif %}
 </form>
 {% endblock %}
