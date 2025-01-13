@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.urls import reverse
 import uuid
 from .forms import ShareForm
 from .models import UserFile
@@ -20,7 +21,8 @@ def shareView(request):
                 file.file = form.cleaned_data["file"]
                 file.file.name = str(file.name)
                 file.save()
-                return render(request, "main.html")
+                link = request.build_absolute_uri("/" + str(file.name))
+                return render(request, "success.html", {"link": link})
     else:
         form = ShareForm()
     return render(request, "share.html", {"form": form})
