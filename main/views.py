@@ -5,3 +5,4 @@ def mainView(request):
 
 def shareView(request):
     return render(request, "share.html")
+
