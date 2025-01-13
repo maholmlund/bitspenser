@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bitspenser</title>
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+        <nav class="navbar">
+                <div class="logo">
+                        <a href="">
+                                <h1>Bitspenser</h1>
+                        </a>
+                </div>
+                <div class="share-button">
+                        <a href="share" class="black-button">
+                                Start sharing!
+                        </a>
+                </div>
+        </nav>
+
+        <div class="content">
+		{% block content %}
+		{% endblock %}
+        </div>
+</body>
+
+</html>
