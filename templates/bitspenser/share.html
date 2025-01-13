@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form action="post">
+	<table class="share-dialog">
+
+		<tr>
+			<th>
+				<label for="file">File</label>
+			</th>
+			<th>
+				<input type="file" name="file" id="">
+			</th>
+		</tr>
+		<tr>
+			<th>
+				<label for="">Protection password</label>
+			</th>
+			<th>
+				<input type="password">
+			</th>
+		</tr>
+		<tr>
+			<th>
+				<label for="">Retype password</label>
+			</th>
+			<th>
+				<input type="password">
+			</th>
+		</tr>
+		<tr>
+			<th>
+				<label for="">Deletion password</label>
+			</th>
+			<th>
+				<input type="password">
+			</th>
+		</tr>
+		<tr>
+			<th>
+				<label for="">Retype password</label>
+			</th>
+			<th>
+				<input type="password">
+			</th>
+		</tr>
+	</table>
+	<button class="black-button">Submit</button>
+</form>
+{% endblock %}
