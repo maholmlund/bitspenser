@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponseNotAllowed
 import uuid
+import datetime
 from .forms import ShareForm, LoginForm
 from .models import UserFile
 
@@ -33,25 +34,36 @@ def shareView(request):
     else:
         return HttpResponseNotAllowed()
 
+def try_get_file(uid_str):
+    uid = None
+    try:
+        uid = uuid.UUID(uid_str)
+    except ValueError:
+        return None
+    file = UserFile.objects.filter(id=uid)
+    if not file:
+        return None
+    return file[0]
+
 def unlockView(request, uid_str):
     if request.method == "GET":
-        return render(request, "login.html", {"form": LoginForm()})
+        file = try_get_file(uid_str)
+        if (uid_str in request.session and file is not None and
+            datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str]) < datetime.timedelta(seconds=60)):
+            return fileView(request, file)
+        else:
+            return render(request, "login.html", {"form": LoginForm()})
     elif request.method == "POST":
         form = LoginForm(request.POST)
         if not form.is_valid():
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        uid = None
-        try:
-            uid = uuid.UUID(uid_str)
-        except ValueError:
-            pass
-        file = UserFile.objects.filter(id=uid)
-        if not file:
+        file = try_get_file(uid_str)
+        if file is None:
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        file = file[0]
         if file.accesspwd != form.cleaned_data["passwd"] and file.deletionpwd != form.cleaned_data["passwd"]:
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        return fileView(request, file)
+        request.session[uid_str] = datetime.datetime.now().isoformat()
+        return redirect("/" + uid_str)
     else:
         return HttpResponseNotAllowed()
 
