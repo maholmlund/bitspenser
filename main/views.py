@@ -33,7 +33,7 @@ def shareView(request):
     else:
         return HttpResponseNotAllowed()
 
-def fileView(request, uid_str):
+def unlockView(request, uid_str):
     if request.method == "GET":
         return render(request, "login.html", {"form": LoginForm()})
     elif request.method == "POST":
@@ -51,6 +51,20 @@ def fileView(request, uid_str):
         file = file[0]
         if file.accesspwd != form.cleaned_data["passwd"] and file.deletionpwd != form.cleaned_data["passwd"]:
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        # TODO: show file
+        return fileView(request, file)
     else:
         return HttpResponseNotAllowed()
+
+def bytes_to_str(n):
+    if n // 1024 == 0:
+        return str(n) + " bytes"
+    elif n // 1024 ** 2 == 0:
+        return f"{(n / 1024):.2f} kB"
+    elif n // 1024 ** 3 == 0:
+        return f"{(n / 1024 ** 2):.2f} MB"
+    else:
+        return f"{(n / 1024 ** 3):.2f} GB"
+
+def fileView(request, file):
+    size = bytes_to_str(file.file.size)
+    return render(request, "file.html", {"date": file.uploaded_at, "size": size})
