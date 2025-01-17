@@ -13,11 +13,14 @@
 		<th>
 			<a href="/download/{{ uuid }}" class="black-button">Download</a>
 		</th>
+		{% if can_delete %}
 		<th>
-			<form action="">
+			<form action="/delete/{{ uuid }}" method="post">
 				<button class="black-button">Delete share</button>
+				{% csrf_token %}
 			</form>
 		</th>
+		{% endif %}
 	</tr>
 </table>
 Size: {{ size }}

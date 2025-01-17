@@ -49,8 +49,8 @@ def unlockView(request, uid_str):
     if request.method == "GET":
         file = try_get_file(uid_str)
         if (uid_str in request.session and file is not None and
-            datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str]) < datetime.timedelta(seconds=60)):
-            return fileView(request, file)
+            datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str][0]) < datetime.timedelta(seconds=60)):
+            return fileView(request, file, request.session[uid_str][1])
         else:
             return render(request, "login.html", {"form": LoginForm()})
     elif request.method == "POST":
@@ -60,9 +60,12 @@ def unlockView(request, uid_str):
         file = try_get_file(uid_str)
         if file is None:
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        if file.accesspwd != form.cleaned_data["passwd"] and file.deletionpwd != form.cleaned_data["passwd"]:
+        if file.deletionpwd == form.cleaned_data["passwd"]:
+            request.session[uid_str] = (datetime.datetime.now().isoformat(), True)
+        elif file.accesspwd == form.cleaned_data["passwd"]:
+            request.session[uid_str] = (datetime.datetime.now().isoformat(), False)
+        else:
             return render(request, "login.html", {"form": form, "errormsg": "Invalid link or password"})
-        request.session[uid_str] = datetime.datetime.now().isoformat()
         return redirect("/" + uid_str)
     else:
         return HttpResponseNotAllowed()
@@ -77,9 +80,9 @@ def bytes_to_str(n):
     else:
         return f"{(n / 1024 ** 3):.2f} GB"
 
-def fileView(request, file):
+def fileView(request, file, can_delete):
     size = bytes_to_str(file.file.size)
-    return render(request, "file.html", {"date": file.uploaded_at, "size": size, "uuid": str(file.id)})
+    return render(request, "file.html", {"date": file.uploaded_at, "size": size, "uuid": str(file.id), "can_delete": can_delete})
 
 def downloadView(request, uid_str):
     if request.method != "GET":
@@ -89,3 +92,14 @@ def downloadView(request, uid_str):
         return redirect("/" + uid_str)
     data = userfile.file.read()
     return HttpResponse(data, "")
+
+def deleteView(request, uid_str):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    if uid_str not in request.session:
+        return redirect("/" + uid_str)
+    if not request.session[uid_str][1]:
+        return redirect("/" + uid_str)
+    file = try_get_file(uid_str)
+    file.delete()
+    return redirect("/")
