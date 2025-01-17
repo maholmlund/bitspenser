@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, HttpResponse
 import uuid
 import datetime
 from .forms import ShareForm, LoginForm
@@ -79,4 +79,13 @@ def bytes_to_str(n):
 
 def fileView(request, file):
     size = bytes_to_str(file.file.size)
-    return render(request, "file.html", {"date": file.uploaded_at, "size": size})
+    return render(request, "file.html", {"date": file.uploaded_at, "size": size, "uuid": str(file.id)})
+
+def downloadView(request, uid_str):
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+    userfile = try_get_file(uid_str)
+    if userfile is None or datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str]) > datetime.timedelta(seconds=60):
+        return redirect("/" + uid_str)
+    data = userfile.file.read()
+    return HttpResponse(data, "")

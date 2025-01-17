@@ -5,5 +5,6 @@ urlpatterns = [
     path("", views.mainView),
     path("share/", views.shareView),
     path("share", views.shareView),
+    path("download/<uid_str>", views.downloadView),
     path("<uid_str>", views.unlockView),
 ]
