@@ -88,10 +88,10 @@ def downloadView(request, uid_str):
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
     userfile = try_get_file(uid_str)
-    if userfile is None or datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str]) > datetime.timedelta(seconds=60):
+    if userfile is None or datetime.datetime.now() - datetime.datetime.fromisoformat(request.session[uid_str][0]) > datetime.timedelta(seconds=60):
         return redirect("/" + uid_str)
     data = userfile.file.read()
-    return HttpResponse(data, "")
+    return HttpResponse(data, content_type="application/octet-stream")
 
 def deleteView(request, uid_str):
     if request.method != "POST":
